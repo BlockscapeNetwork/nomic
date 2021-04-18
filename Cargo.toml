@@ -5,7 +5,7 @@ authors = [ "The Nomic Team <hello@nomic.io>" ]
 edition = "2018"
 
 [dependencies]
-abci2-rs = { git = "../abci2-rs", branch="master" }
+abci2-rs = { path = "../abci2-rs", branch="master" }
 base64 = "0.12.0"
 bech32 = "0.7.2"
 bincode = "1.2.1"
