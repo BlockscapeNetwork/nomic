@@ -4,6 +4,7 @@ use blocking::block_on;
 use log::info;
 use rand::random;
 use sha2::{Digest, Sha256};
+use tendermint_rpc::Client;
 
 const MIN_WORK: u64 = 1 << 20;
 
