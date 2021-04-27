@@ -10,14 +10,15 @@ use bitcoin::Network::Testnet as bitcoin_network;
 use blocking::block_on;
 use failure::bail;
 use orga::{
-    abci::TendermintClient, merkstore::Client as MerkStoreClient, Read, Result as OrgaResult,
-    WrapStore, Write,
+    abci::TendermintClient, merk::Client as MerkStoreClient, Result as OrgaResult,
+    store::Write, store::Read
 };
 
 use std::cell::{RefCell, RefMut};
 use std::ops::DerefMut;
 use std::str::FromStr;
-use tendermint_rpc::Client as TendermintRpcClient;
+
+use tendermint_rpc::{HttpClient as TendermintRpcClient, Client as RpcClient};
 
 pub struct RemoteStore {
     merk_store_client: MerkStoreClient<TendermintClient>,
@@ -57,7 +58,7 @@ impl Client {
     pub fn new(tendermint_rpc_address: &str) -> Result<Self> {
         let address = tendermint::net::Address::from_str(tendermint_rpc_address)
             .map_err(|_| failure::format_err!("Invalid Tendermint RPC address"))?;
-        let tendermint_rpc = TendermintRpcClient::new(address);
+        let tendermint_rpc = TendermintRpcClient::new(address)?;
         let store = RemoteStore::new(tendermint_rpc_address);
 
         Ok(Client {
@@ -78,7 +79,8 @@ impl Client {
         let tx_bytes = serde_json::to_vec(&transaction).unwrap();
 
         let rpc = &self.tendermint_rpc;
-        let tx = tendermint::abci::Transaction::new(tx_bytes);
+
+        let tx = tendermint::abci::Transaction::from(tx_bytes);
 
         let res = block_on(rpc.broadcast_tx_commit(tx))?;
         if res.check_tx.code.is_err() {
@@ -98,7 +100,7 @@ impl Client {
         let tx_bytes = serde_json::to_vec(&transaction).unwrap();
 
         let rpc = &self.tendermint_rpc;
-        let tx = tendermint::abci::Transaction::new(tx_bytes);
+        let tx = tendermint::abci::Transaction::from(tx_bytes);
         Ok(block_on(rpc.broadcast_tx_async(tx))?)
     }
 

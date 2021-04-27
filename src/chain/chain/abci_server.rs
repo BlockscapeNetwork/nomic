@@ -5,11 +5,16 @@ use super::Action;
 use crate::core::primitives::transaction::Transaction;
 use failure::bail;
 use merk::Merk;
-use orga::abci::{messages::*, ABCIStateMachine, Application};
+use orga::abci::{ABCIStateMachine, Application};
 use orga::Result as OrgaResult;
-use orga::{merkstore::MerkStore, Store};
+use orga::{merk::MerkStore, Store};
 use std::collections::BTreeMap;
 use std::path::Path;
+
+use tendermint_proto::abci::{ RequestInitChain, ResponseInitChain, RequestCheckTx, ResponseCheckTx, 
+    RequestDeliverTx, ResponseDeliverTx, RequestBeginBlock, ResponseBeginBlock, RequestEndBlock, 
+    ResponseEndBlock, ValidatorUpdate
+};
 
 struct App;
 
@@ -20,7 +25,8 @@ impl Application for App {
         req: RequestInitChain,
     ) -> OrgaResult<ResponseInitChain> {
         let mut validators = BTreeMap::<Vec<u8>, u64>::new();
-        for validator in req.get_validators() {
+        
+        for validator in req.validators {
             let pub_key = validator.get_pub_key().get_data().to_vec();
             let power = validator.get_power() as u64;
             validators.insert(pub_key, power);

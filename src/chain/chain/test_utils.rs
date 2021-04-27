@@ -9,9 +9,11 @@ use bitcoin::consensus::encode as bitcoin_encode;
 use bitcoin::util::hash::bitcoin_merkle_root;
 use bitcoin::util::merkleblock::PartialMerkleTree;
 use lazy_static::lazy_static;
-use orga::{abci::messages::Header as TendermintHeader, MapStore, Store, WrapStore};
-
-use protobuf::well_known_types::Timestamp;
+use orga::{Store, store::MapStore, state::State};
+use tendermint_proto::types::Header as TendermintHeader;
+// use protobuf::well_known_types::Timestamp;
+// TODO correct wrapping of Timestamp
+use tendermint_proto::google::protobuf::Timestamp;
 use secp256k1::{Secp256k1, SecretKey, SignOnly};
 use std::collections::{BTreeMap, HashSet};
 
@@ -110,10 +112,12 @@ impl MockNet {
         super::peg::handlers::deposit_tx(&mut peg_state, &mut account_state, deposit.clone())
             .unwrap();
 
-        let mut header: orga::abci::messages::Header = Default::default();
+        // let mut header: orga::abci::messages::Header = Default::default();
+        let mut header: tendermint_proto::types::Header = Default::default();
         let mut timestamp = Timestamp::new();
         timestamp.set_seconds(super::peg::CHECKPOINT_INTERVAL as i64 * 2);
-        header.set_time(timestamp);
+        header.time = timestamp;
+        //header.set_time(timestamp);
         super::peg::handlers::begin_block(&mut peg_state, &mut net.validators, header).unwrap();
 
         net

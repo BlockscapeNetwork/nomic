@@ -1,12 +1,12 @@
 use super::{accounts, peg, work, Action};
 use crate::core::primitives::transaction::Transaction;
 use crate::core::primitives::Result;
-use orga::Store;
-use orga::{state, WrapStore};
+use orga::store::Store;
+use orga::macros::state;
 use std::collections::BTreeMap;
 
 #[state]
-pub struct State {
+pub struct State<S: Store> {
     pub peg: peg::State,
     pub accounts: accounts::State,
     pub work: work::State,

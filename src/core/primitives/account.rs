@@ -1,4 +1,4 @@
-use orga::{Decode, Encode};
+use ed::{ Decode, Encode };
 
 #[derive(Debug, Default, PartialEq, Encode, Decode)]
 pub struct Account {

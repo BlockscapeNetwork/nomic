@@ -5,11 +5,13 @@ use crate::core::signatory_set::SignatorySetSnapshot;
 use failure::bail;
 use orga::{
     collections::{Deque, Set},
-    state, Decode, Encode, Store, Value, Wrapper,
+    Store, /* Value, Wrapper,*/
 };
+use ed::{ Decode, Encode };
+
 
 #[state]
-pub struct State {
+pub struct State<S: Store> {
     pub signatory_sets: Deque<SignatorySetSnapshot>,
     pub processed_deposit_txids: Set<[u8; 32]>,
     pub pending_withdrawals: Deque<Withdrawal>,
@@ -31,7 +33,7 @@ pub struct Utxo {
 }
 
 #[state]
-pub struct FinalizedCheckpoint {
+pub struct FinalizedCheckpoint<S: Store> {
     pub withdrawals: Deque<Withdrawal>,
     pub signatory_set_index: Value<u64>,
     pub utxos: Deque<Utxo>,
@@ -40,7 +42,7 @@ pub struct FinalizedCheckpoint {
 }
 
 #[state]
-pub struct ActiveCheckpoint {
+pub struct ActiveCheckpoint<S: Store> {
     pub is_active: Value<bool>,
     pub signatures: Deque<Option<Vec<Signature>>>,
     pub signed_voting_power: Value<u64>,

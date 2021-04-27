@@ -1,5 +1,7 @@
 use crate::core::primitives::transaction::Transaction;
-use orga::abci::messages::Header;
+// TODO: Should Tendermint messages be wrapped by orga in general?
+use tendermint_proto::types::Header;
+
 
 #[derive(Clone, Debug)]
 pub enum Action {

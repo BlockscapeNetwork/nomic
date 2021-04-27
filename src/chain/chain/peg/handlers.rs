@@ -10,7 +10,9 @@ use bitcoin::hashes::Hash;
 use bitcoin::Network::Testnet as bitcoin_network;
 use failure::bail;
 use log::info;
-use orga::{abci::messages::Header, Store};
+use orga::{/*abci::messages::Header, */ Store};
+// TODO move it to orga
+use tendermint_proto::types::Header;
 use std::collections::BTreeMap;
 
 pub fn initialize<S: Store>(state: &mut PegState<S>) -> Result<()> {
@@ -428,7 +430,9 @@ mod tests {
     use crate::core::signatory_set::{Signatory, SignatorySet, SignatorySetSnapshot};
     use bitcoin::Network::Testnet as bitcoin_network;
     use lazy_static::lazy_static;
-    use orga::{abci::messages::Header as TendermintHeader, MapStore, WrapStore};
+    use orga::{state::State};
+    use orga::{store::MapStore};
+    use tendermint_proto::types::Header as TendermintHeader;
     use protobuf::well_known_types::Timestamp;
     use signatories_from_validators;
 

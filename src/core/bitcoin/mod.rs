@@ -7,7 +7,8 @@ use bitcoin::{
     hashes::{sha256d::Hash as Sha2Hash, Hash},
     BlockHeader,
 };
-use orga::{Decode, Encode, Result};
+use orga::{ Result };
+use ed::{ Decode, Encode };
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
