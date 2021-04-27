@@ -8,6 +8,9 @@ use orga::{
     Store, /* Value, Wrapper,*/
 };
 use ed::{ Decode, Encode };
+use orga::state::Value;
+use tendermint_rpc::request::Wrapper;
+use orga::macros::state;
 
 
 #[state]

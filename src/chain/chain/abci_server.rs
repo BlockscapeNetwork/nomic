@@ -4,7 +4,6 @@ use super::state_machine::{initialize, run};
 use super::Action;
 use crate::core::primitives::transaction::Transaction;
 use failure::bail;
-use merk::Merk;
 use orga::abci::{ABCIStateMachine, Application};
 use orga::Result as OrgaResult;
 use orga::{merk::MerkStore, Store};
@@ -15,6 +14,8 @@ use tendermint_proto::abci::{ RequestInitChain, ResponseInitChain, RequestCheckT
     RequestDeliverTx, ResponseDeliverTx, RequestBeginBlock, ResponseBeginBlock, RequestEndBlock, 
     ResponseEndBlock, ValidatorUpdate
 };
+//use merk::Merk;
+use orga::merk::merk::Merk;
 
 struct App;
 
@@ -99,7 +100,7 @@ impl Application for App {
         let mut validator_updates: Vec<ValidatorUpdate> = Vec::new();
         for (pub_key_bytes, power) in validators {
             let mut validator_update = ValidatorUpdate::new();
-            let mut pub_key = PubKey::new();
+            let mut pub_key = validator_update.pub_key;
             pub_key.set_data(pub_key_bytes);
             pub_key.set_field_type(String::from("secp256k1"));
             validator_update.set_pub_key(pub_key);
