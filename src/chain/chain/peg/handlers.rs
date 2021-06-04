@@ -19,16 +19,15 @@ pub fn initialize<S: Store>(state: &mut PegState<S>) -> Result<()> {
     // TODO: this should be an action
     let checkpoint = get_checkpoint_header();
     // TODO: VHX
-    info!("Initialized should be implemented correctly");
-    Ok(())
-    /*
+    // info!("Initialized should be implemented correctly");
+    // Ok(())
     let mut header_cache = HeaderCache::new(bitcoin_network, &mut state.headers);
 
     header_cache
         .add_header_raw(checkpoint.header, checkpoint.height)
         .map_err(|e| e.into())
         
-     */
+
 }
 
 fn get_checkpoint_header() -> EnrichedHeader {
