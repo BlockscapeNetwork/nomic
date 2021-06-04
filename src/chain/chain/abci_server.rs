@@ -17,6 +17,9 @@ use tendermint_proto::abci::{ RequestInitChain, ResponseInitChain, RequestCheckT
 //use merk::Merk;
 use orga::merk::merk::Merk;
 
+use tendermint_proto::crypto::public_key::Sum;
+use tendermint_proto::crypto::PublicKey;
+
 struct App;
 
 impl Application for App {
@@ -28,19 +31,32 @@ impl Application for App {
         let mut validators = BTreeMap::<Vec<u8>, u64>::new();
         
         for validator in req.validators {
-            let pub_key = validator.get_pub_key().get_data().to_vec();
-            let power = validator.get_power() as u64;
+            //let pub_key = validator.get_pub_key().get_data().to_vec();
+            // Todo VHX
+            let pub_key_help = validator.pub_key.unwrap();
+            let pub_key = match pub_key_help.sum {
+              Some(Sum::Ed25519(pk))  => { pk }
+                _ => vec![]
+            };
+
+            let power = validator.power as u64;
             validators.insert(pub_key, power);
         }
 
         write_validators(&mut store, validators)?;
         initialize(&mut store)?;
 
-        Ok(ResponseInitChain::new())
+        Ok(ResponseInitChain {
+            consensus_params: None,
+            validators: vec![],
+            app_hash: vec![],
+        })
     }
 
     fn check_tx<S: Store>(&self, mut store: S, req: RequestCheckTx) -> OrgaResult<ResponseCheckTx> {
-        let tx = serde_json::from_slice::<Transaction>(req.get_tx());
+        // let tx = serde_json::from_slice::<Transaction>(req.get_tx());
+        // Todo VHX
+        let tx = serde_json::from_slice::<Transaction>(&*req.tx);
         let mut validators = read_validators(&mut store);
 
         match tx {
@@ -48,8 +64,20 @@ impl Application for App {
                 Ok(_execution_result) => {
                     // TODO: Don't write validators back to store if they haven't changed
                     write_validators(&mut store, validators)?;
-                    let mut res = ResponseCheckTx::new();
-                    res.set_data(vec![]);
+                    // TODO: VHX
+                    //let mut res = ResponseCheckTx::new();
+                    let mut res = ResponseCheckTx {
+                        code: 0,
+                        data: vec![],
+                        log: "".to_string(),
+                        info: "".to_string(),
+                        gas_wanted: 0,
+                        gas_used: 0,
+                        events: vec![],
+                        codespace: "".to_string()
+                    };
+                    // res.set_data(vec![]);
+                    res.data = vec![];
                     Ok(res)
                 }
 
@@ -65,14 +93,29 @@ impl Application for App {
         mut store: S,
         req: RequestDeliverTx,
     ) -> OrgaResult<ResponseDeliverTx> {
-        let tx = serde_json::from_slice::<Transaction>(req.get_tx());
+        // let tx = serde_json::from_slice::<Transaction>(req.get_tx());
+        // Todo VHX
+        let tx = serde_json::from_slice::<Transaction>(&*req.tx);
         let mut validators = read_validators(&mut store);
         match tx {
             Ok(tx) => match run(&mut store, Action::Transaction(tx), &mut validators) {
                 Ok(_execution_result) => {
                     write_validators(&mut store, validators)?;
-                    let mut res = ResponseDeliverTx::new();
-                    res.set_data(vec![]);
+                    // TODO: VHX
+                    // let mut res = ResponseDeliverTx::new();
+                    let mut res = ResponseDeliverTx {
+                        code: 0,
+                        data: vec![],
+                        log: "".to_string(),
+                        info: "".to_string(),
+                        gas_wanted: 0,
+                        gas_used: 0,
+                        events: vec![],
+                        codespace: "".to_string()
+                    };
+                    // TODO: VHX
+                    // res.set_data(vec![]);
+                    res.data = vec![];
                     Ok(res)
                 }
 
@@ -87,7 +130,9 @@ impl Application for App {
         mut store: S,
         req: RequestBeginBlock,
     ) -> OrgaResult<ResponseBeginBlock> {
-        let header = req.get_header().clone();
+        // TODO: VHX
+        // let header = req.get_header().clone();
+        let header = req.header.clone().unwrap();
         let action = Action::BeginBlock(header);
         let mut validators = read_validators(&mut store);
         run(&mut store, action, &mut validators)?;
@@ -99,17 +144,29 @@ impl Application for App {
         let validators = read_validators(store);
         let mut validator_updates: Vec<ValidatorUpdate> = Vec::new();
         for (pub_key_bytes, power) in validators {
-            let mut validator_update = ValidatorUpdate::new();
-            let mut pub_key = validator_update.pub_key;
-            pub_key.set_data(pub_key_bytes);
-            pub_key.set_field_type(String::from("secp256k1"));
-            validator_update.set_pub_key(pub_key);
-            validator_update.set_power(power as i64);
-            validator_updates.push(validator_update);
+            // TODO: VHX
+            // let mut validator_update = ValidatorUpdate::new();
+            // let mut pub_key = validator_update.pub_key;
+            // pub_key.set_data(pub_key_bytes);
+            // pub_key.set_field_type(String::from("secp256k1"));
+            // validator_update.set_pub_key(pub_key);
+            // validator_update.set_power(power as i64);
+            // validator_updates.push(validator_update);
+            let mut validator_update = ValidatorUpdate { 
+                // pub_key: Option::from(PublicKey { sum: None }),
+                pub_key: Some(PublicKey { sum: Option::from(Sum::Ed25519(pub_key_bytes)) }),
+                power: power as i64
+            };
+            validator_updates.push(validator_update)
         }
 
-        let mut response = ResponseEndBlock::new();
-        response.set_validator_updates(validator_updates.into());
+        // response.set_validator_updates(validator_updates.into());
+        let mut response = ResponseEndBlock {
+            validator_updates,
+            consensus_param_updates: None,
+            events: vec![]
+        };
+
         Ok(response)
     }
 }

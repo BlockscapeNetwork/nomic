@@ -130,7 +130,8 @@ impl convert::From<Error> for io::Error {
     fn from(err: Error) -> io::Error {
         match err {
             Error::IO(e) => e,
-            _ => io::Error::new(io::ErrorKind::Other, err.to_string().as_ref()),
+            //_ => io::Error::new(io::ErrorKind::Other, err.to_string().as_ref()),
+            _ => io::Error::new(io::ErrorKind::Other, err.to_string()),
         }
     }
 }

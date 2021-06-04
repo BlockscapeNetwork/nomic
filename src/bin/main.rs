@@ -8,6 +8,11 @@ use nomic::cli::wallet::Wallet;
 use nomic::Result;
 use std::{env, fs};
 
+use orga::merk::MerkStore;
+use orga::merk::merk::Merk;
+use orga::abci::ABCIStateMachine;
+
+
 /// Command-line interface for interacting with the Nomic Bitcoin sidechain
 #[derive(Clap)]
 #[clap(version = "0.2.2")]
@@ -91,9 +96,9 @@ pub fn main() {
     let mut nomic_home = dirs::home_dir()
         .unwrap_or(std::env::current_dir().expect("Failed to create Nomic home directory"));
     if opts.dev {
-        nomic_home.push(".nomic-dev");
+        nomic_home.push(".moon-dev");
     } else {
-        nomic_home.push(".nomic-testnet");
+        nomic_home.push(".moon-testnet");
     }
     let mkdir_result = fs::create_dir(&nomic_home);
     if let Err(_) = mkdir_result {
@@ -108,17 +113,23 @@ pub fn main() {
         SubCommand::Start(_) => {
             default_log_level("info");
             // Install and start Tendermint
-            nomic::cli::tendermint::install(&nomic_home);
-            nomic::cli::tendermint::init(&nomic_home, opts.dev);
-            nomic::cli::tendermint::start(&nomic_home);
+            //nomic::cli::tendermint::install(&nomic_home);
+            //nomic::cli::tendermint::init(&nomic_home, opts.dev);
+            //nomic::cli::tendermint::start(&nomic_home);
 
             // Start the ABCI server
             info!("Starting ABCI server");
             let nomic_home_abci = nomic_home.clone();
+            abci_server::start(nomic_home_abci);
+
+
+
+
+            /*
             std::thread::spawn(move || {
                 abci_server::start(nomic_home_abci);
             });
-
+            */
             // Start the signatory process
             loop {
                 // poll until RPC is available
@@ -128,7 +139,8 @@ pub fn main() {
                 std::thread::sleep(std::time::Duration::from_secs(1));
             }
             info!("Starting signatory process");
-            nomic::signatory::start(nomic_home).unwrap();
+            // TODO: VHX
+            // nomic::signatory::start(nomic_home).unwrap();
         }
         SubCommand::Worker(_) => {
             default_log_level("info");

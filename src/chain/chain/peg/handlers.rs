@@ -18,11 +18,17 @@ use std::collections::BTreeMap;
 pub fn initialize<S: Store>(state: &mut PegState<S>) -> Result<()> {
     // TODO: this should be an action
     let checkpoint = get_checkpoint_header();
+    // TODO: VHX
+    info!("Initialized should be implemented correctly");
+    Ok(())
+    /*
     let mut header_cache = HeaderCache::new(bitcoin_network, &mut state.headers);
 
     header_cache
         .add_header_raw(checkpoint.header, checkpoint.height)
         .map_err(|e| e.into())
+        
+     */
 }
 
 fn get_checkpoint_header() -> EnrichedHeader {
@@ -38,7 +44,10 @@ pub fn deposit_tx<S: Store>(
     account_state: &mut AccountState<S>,
     deposit_transaction: DepositTransaction,
 ) -> Result<()> {
+
+    info!("deposit_tx should be implemented correctly");
     // Hash transaction and check for duplicate
+    /* TODO: VHX
     let txid = deposit_transaction.tx.txid();
     if peg_state
         .processed_deposit_txids
@@ -123,6 +132,8 @@ pub fn deposit_tx<S: Store>(
     peg_state
         .processed_deposit_txids
         .insert(txid.as_hash().into_inner())?;
+
+     */
     Ok(())
 }
 
@@ -131,20 +142,23 @@ pub fn begin_block<S: Store>(
     validators: &BTreeMap<Vec<u8>, u64>,
     header: Header,
 ) -> Result<()> {
-    let now = header.get_time().get_seconds() as u64;
+    // TODO: VHX
+    // let now = header.get_time().get_seconds() as u64;
+    let now = header.time.unwrap().seconds;
 
     if let None = state.signatory_sets.back()? {
         // init signatories at start of chain
         let signatories = SignatorySetSnapshot {
-            time: now,
+            time: now as u64,
             signatories: signatories_from_validators(validators)?,
         };
         state.signatory_sets.push_back(signatories)?;
     }
 
-    let time_since_last_checkpoint = now - state.last_checkpoint_time.get_or_default()?;
-    if time_since_last_checkpoint > CHECKPOINT_INTERVAL {
-        state.last_checkpoint_time.set(now)?;
+    let time_since_last_checkpoint = now - state.last_checkpoint_time.get_or_default()? as i64;
+    if time_since_last_checkpoint > CHECKPOINT_INTERVAL as i64 {
+        let now_help = now as u64;
+        state.last_checkpoint_time.set(now_help)?;
 
         if state.pending_utxos()?.is_empty() {
             return Ok(());
@@ -186,7 +200,7 @@ pub fn begin_block<S: Store>(
         // Check if this checkpoint should cause a signatory set transition
         if checkpoint_index % SIGNATORY_CHANGE_INTERVAL == 0 {
             let new_signatories = SignatorySetSnapshot {
-                time: now,
+                time: now as u64,
                 signatories: signatories_from_validators(validators)?,
             };
 
@@ -201,10 +215,14 @@ pub fn begin_block<S: Store>(
 }
 
 pub fn header_tx<S: Store>(state: &mut PegState<S>, tx: HeaderTransaction) -> Result<()> {
+    info!("header_tx should be implemented correctly");
+    /* TODO: VHX
     let mut header_cache = HeaderCache::new(bitcoin_network, &mut state.headers);
     for header in tx.block_headers {
         header_cache.add_header(&header)?;
     }
+    */
+
     Ok(())
 }
 

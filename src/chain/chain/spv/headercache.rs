@@ -26,8 +26,7 @@ use bitcoin::{
 };
 use bitcoin_hashes::Hash;
 use failure::bail;
-use orga::Result as OrgaResult;
-use orga::Store;
+use orga::{Result as OrgaResult, Store};
 use serde::{Deserialize, Serialize};
 
 /// A header enriched with information about its position on the blockchain

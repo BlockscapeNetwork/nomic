@@ -4,6 +4,7 @@ use crate::core::primitives::Result;
 use orga::store::Store;
 use orga::macros::state;
 use std::collections::BTreeMap;
+use orga::state::State as OrgState;
 
 #[state]
 pub struct State<S: Store> {

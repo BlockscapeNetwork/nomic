@@ -23,7 +23,7 @@ pub struct State<S: Store> {
     pub last_checkpoint_time: Value<u64>,
     pub active_checkpoint: ActiveCheckpoint,
     pub checkpoint_index: Value<u64>,
-    pub headers: Wrapper,
+    // TODO: VHX pub headers: Wrapper,
     pub finalized_checkpoint_txs: Deque<Vec<u8>>,
 }
 

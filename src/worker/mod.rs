@@ -10,12 +10,16 @@ const MIN_WORK: u64 = 1 << 20;
 
 pub fn generate() {
     let rpc = PegClient::new("localhost:26657").unwrap();
-    let pub_key_bytes = block_on(rpc.tendermint_rpc.status())
-        .expect("Unable to connect to tendermint RPC")
-        .validator_info
-        .pub_key
-        .as_bytes();
 
+    // TODO: VHX
+    //let validators = rpc.tendermint_rpc;
+    //let pub_key_bytes = block_on(rpc.tendermint_rpc.status()).
+        // .expect("Unable to connect to tendermint RPC")
+        //.validator_info
+        //.pub_key
+        //.as_bytes()
+        ;
+    /*
     let mut nonce = random::<u64>();
     loop {
         let work_value = try_nonce(&pub_key_bytes, nonce);
@@ -26,6 +30,8 @@ pub fn generate() {
         }
         nonce += 1;
     }
+
+    */
 }
 
 fn try_nonce(pub_key_bytes: &[u8], nonce: u64) -> u64 {
