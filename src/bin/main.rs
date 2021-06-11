@@ -115,8 +115,11 @@ pub fn main() {
         SubCommand::Start(_) => {
             default_log_level("info");
             // Install and start Tendermint
+            // TODO: Check how we can bind Tendermint to package
             // nomic::cli::tendermint::install(&nomic_home);
+            // TODO: (06/11/21) We need unreleased tendermint 0.34.11
             nomic::cli::tendermint::init(&nomic_home, opts.dev);
+            // TODO: (06/11/21) Protobuf mismatch in 0.34.11 must be fixed - we use 0.34.10
             nomic::cli::tendermint::start(&nomic_home);
 
             // Start the ABCI server

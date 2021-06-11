@@ -154,7 +154,7 @@ impl Application for App {
             // validator_updates.push(validator_update);
             let mut validator_update = ValidatorUpdate { 
                 // pub_key: Option::from(PublicKey { sum: None }),
-                pub_key: Some(PublicKey { sum: Option::from(Sum::Ed25519(pub_key_bytes)) }),
+                pub_key: Some(PublicKey { sum: Option::from(Sum::Secp256k1(pub_key_bytes)) }),
                 power: power as i64
             };
             validator_updates.push(validator_update)

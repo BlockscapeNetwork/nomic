@@ -77,6 +77,7 @@ pub fn init(nomic_home: &PathBuf, dev_mode: bool) {
 
     // Initialize Tendermint for testnet
     // Needs Tendermint 0.38.11 or higher
+    /*
     let run_init = || {
         debug!("Running 'tendermint init'");
         Command::new(&tendermint_path)
@@ -90,7 +91,7 @@ pub fn init(nomic_home: &PathBuf, dev_mode: bool) {
     };
 
     run_init();
-
+    */
     let key_path = nomic_home.join("config/priv_validator_key.json");
     let key_existed = key_path.exists();
 
@@ -103,10 +104,13 @@ pub fn init(nomic_home: &PathBuf, dev_mode: bool) {
     }
 
     let genesis_path = nomic_home.join("config/genesis.json");
+    // TODO: Dev Mode has to be fixed for TM 0.34.x
     let genesis_str = if dev_mode {
+        info!("Warning this mode is only compatible with Tendermint 0.32.x");
         // regenerate genesis
         fs::remove_file(&genesis_path).expect("Failed to delete genesis");
-        run_init();
+        // TODO: not ready for use
+        // run_init();
 
         // TODO: build genesis manually rather than replacing
         let old_genesis = fs::read(&genesis_path).expect("Failed to read genesis");
@@ -118,7 +122,9 @@ pub fn init(nomic_home: &PathBuf, dev_mode: bool) {
             "\"pub_key_types\": [\"secp256k1\"]",
         );
         genesis
-    } else {
+    } else
+    {
+        // TODO: We should add priv_validator_key.json address and pub key
         include_str!("../config/genesis.json").to_string()
     };
     info!("genesis.json: {}", genesis_str);
@@ -129,10 +135,10 @@ pub fn init(nomic_home: &PathBuf, dev_mode: bool) {
 pub fn start(nomic_home: &PathBuf) {
     let tendermint_path = nomic_home.join("tendermint");
     Command::new(tendermint_path)
-        .arg("node")
+        .arg("start")
         .arg("--home")
         .arg(nomic_home.to_str().unwrap())
-        // Todo: VHX No Peers
+        // TODO: No Peers
         // .arg("--p2p.persistent_peers")
         // .arg("55dbe332ece7aa8fc792f76be313eb72aefa3aee@kep.io:26656,73476da15a66cf14ffe4d8cdccd1eb6d2ed8da5d@73.162.155.22:26656")
         .spawn()
