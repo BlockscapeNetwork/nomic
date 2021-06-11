@@ -98,7 +98,7 @@ pub fn start() {
 
     let mut deposit_step = || -> Result<()> {
         let btc_rpc = make_rpc_client().unwrap();
-        let peg_client = PegClient::new("localhost:26657")?;
+        let peg_client = PegClient::new("tcp://127.0.0.1:26657")?;
 
         let new_addresses = address_pool
             .drain_addresses()

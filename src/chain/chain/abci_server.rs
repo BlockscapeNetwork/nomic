@@ -10,8 +10,8 @@ use orga::{merk::MerkStore, Store};
 use std::collections::BTreeMap;
 use std::path::Path;
 
-use tendermint_proto::abci::{ RequestInitChain, ResponseInitChain, RequestCheckTx, ResponseCheckTx, 
-    RequestDeliverTx, ResponseDeliverTx, RequestBeginBlock, ResponseBeginBlock, RequestEndBlock, 
+use tendermint_proto::abci::{ RequestInitChain, ResponseInitChain, RequestCheckTx, ResponseCheckTx,
+    RequestDeliverTx, ResponseDeliverTx, RequestBeginBlock, ResponseBeginBlock, RequestEndBlock,
     ResponseEndBlock, ValidatorUpdate
 };
 //use merk::Merk;
@@ -35,7 +35,7 @@ impl Application for App {
             // Todo VHX
             let pub_key_help = validator.pub_key.unwrap();
             let pub_key = match pub_key_help.sum {
-              Some(Sum::Ed25519(pk))  => { pk }
+                Some(Sum::Secp256k1(pk))  => { pk }
                 _ => vec![]
             };
 
@@ -49,7 +49,7 @@ impl Application for App {
         Ok(ResponseInitChain {
             consensus_params: None,
             validators: vec![],
-            app_hash: vec![],
+            app_hash: vec![]
         })
     }
 
@@ -140,8 +140,8 @@ impl Application for App {
         Ok(Default::default())
     }
 
-    fn end_block<S: Store>(&self, store: S, _req: RequestEndBlock) -> OrgaResult<ResponseEndBlock> {
-        let validators = read_validators(store);
+    fn end_block<S: Store>(&self, mut store: S, _req: RequestEndBlock) -> OrgaResult<ResponseEndBlock> {
+        let validators = read_validators(&mut store);
         let mut validator_updates: Vec<ValidatorUpdate> = Vec::new();
         for (pub_key_bytes, power) in validators {
             // TODO: VHX

@@ -6,11 +6,12 @@ use rand::random;
 use sha2::{Digest, Sha256};
 use tendermint_rpc::Client;
 
+
 const MIN_WORK: u64 = 1 << 20;
 
 pub fn generate() {
     let rpc = PegClient::new("localhost:26657").unwrap();
-
+    info!("Worker is not implemented correctly!")
     // TODO: VHX
     //let validators = rpc.tendermint_rpc;
     //let pub_key_bytes = block_on(rpc.tendermint_rpc.status()).

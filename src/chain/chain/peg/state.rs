@@ -11,6 +11,8 @@ use ed::{ Decode, Encode };
 use orga::state::{ Value, WrapperStore };
 
 use orga::macros::state;
+use orga::abci::MemStore;
+use orga::store::{MapStore, NullStore};
 
 
 #[state]
@@ -23,6 +25,7 @@ pub struct State<S: Store> {
     pub last_checkpoint_time: Value<u64>,
     pub active_checkpoint: ActiveCheckpoint,
     pub checkpoint_index: Value<u64>,
+    // Todo: VHX Wrong Store Type
     pub headers: WrapperStore<>,
     pub finalized_checkpoint_txs: Deque<Vec<u8>>,
 }

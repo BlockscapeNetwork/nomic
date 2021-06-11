@@ -41,7 +41,7 @@ fn verify_hash(tendermint_bytes: &Vec<u8>) {
 }
 
 pub fn install(nomic_home: &PathBuf) {
-    let tendermint_path = nomic_home.join("tendermint-v0.32.8");
+    let tendermint_path = nomic_home.join("tendermint");
     if tendermint_path.is_executable() {
         info!("Tendermint already installed");
         return;
@@ -73,23 +73,26 @@ pub fn install(nomic_home: &PathBuf) {
 }
 
 pub fn init(nomic_home: &PathBuf, dev_mode: bool) {
-    let tendermint_path = nomic_home.join("tendermint-v0.32.8");
+    let tendermint_path = nomic_home.join("tendermint");
 
     // Initialize Tendermint for testnet
+    // Needs Tendermint 0.38.11 or higher
     let run_init = || {
         debug!("Running 'tendermint init'");
         Command::new(&tendermint_path)
             .arg("init")
+            .arg("validator")
+            .arg("--key=secp256k1")
             .arg("--home")
             .arg(nomic_home.to_str().unwrap())
             .output()
             .expect("Failed to initialize Tendermint");
     };
 
+    run_init();
+
     let key_path = nomic_home.join("config/priv_validator_key.json");
     let key_existed = key_path.exists();
-
-    run_init();
 
     if !key_existed {
         let key_str = gen_validator_key();
@@ -118,19 +121,20 @@ pub fn init(nomic_home: &PathBuf, dev_mode: bool) {
     } else {
         include_str!("../config/genesis.json").to_string()
     };
-    debug!("genesis.json: {}", genesis_str);
+    info!("genesis.json: {}", genesis_str);
     info!("Writing genesis to '{:?}'", genesis_path);
     fs::write(genesis_path, genesis_str).expect("Failed to write genesis.json");
 }
 
 pub fn start(nomic_home: &PathBuf) {
-    let tendermint_path = nomic_home.join("tendermint-v0.32.8");
+    let tendermint_path = nomic_home.join("tendermint");
     Command::new(tendermint_path)
         .arg("node")
         .arg("--home")
         .arg(nomic_home.to_str().unwrap())
-        .arg("--p2p.persistent_peers")
-        .arg("55dbe332ece7aa8fc792f76be313eb72aefa3aee@kep.io:26656,73476da15a66cf14ffe4d8cdccd1eb6d2ed8da5d@73.162.155.22:26656")
+        // Todo: VHX No Peers
+        // .arg("--p2p.persistent_peers")
+        // .arg("55dbe332ece7aa8fc792f76be313eb72aefa3aee@kep.io:26656,73476da15a66cf14ffe4d8cdccd1eb6d2ed8da5d@73.162.155.22:26656")
         .spawn()
         .expect("Failed to start Tendermint");
     info!("Spawned Tendermint child process");

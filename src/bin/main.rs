@@ -1,3 +1,5 @@
+// NOMIC_LOG=trace cargo run --package nomic --bin nomic-cli start
+
 use clap::Clap;
 use colored::*;
 use failure::bail;
@@ -113,34 +115,32 @@ pub fn main() {
         SubCommand::Start(_) => {
             default_log_level("info");
             // Install and start Tendermint
-            //nomic::cli::tendermint::install(&nomic_home);
-            //nomic::cli::tendermint::init(&nomic_home, opts.dev);
-            //nomic::cli::tendermint::start(&nomic_home);
+            // nomic::cli::tendermint::install(&nomic_home);
+            nomic::cli::tendermint::init(&nomic_home, opts.dev);
+            nomic::cli::tendermint::start(&nomic_home);
 
             // Start the ABCI server
             info!("Starting ABCI server");
             let nomic_home_abci = nomic_home.clone();
+
+            // RockDB Crash if we move this Server to a new thread...
             abci_server::start(nomic_home_abci);
 
+            // std::thread::spawn(move || {
+            //    abci_server::start(nomic_home_abci);
+            // });
 
-
-
-            /*
-            std::thread::spawn(move || {
-                abci_server::start(nomic_home_abci);
-            });
-            */
             // Start the signatory process
             loop {
                 // poll until RPC is available
-                if let Ok(_) = Client::new("localhost:26657") {
+                if let Ok(_) = Client::new("127.0.0.1:26657") {
                     break;
                 }
                 std::thread::sleep(std::time::Duration::from_secs(1));
             }
             info!("Starting signatory process");
             // TODO: VHX
-            // nomic::signatory::start(nomic_home).unwrap();
+            nomic::signatory::start(nomic_home).unwrap();
         }
         SubCommand::Worker(_) => {
             default_log_level("info");

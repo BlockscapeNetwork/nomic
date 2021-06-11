@@ -1,6 +1,6 @@
 {
   "genesis_time": "2020-05-01T05:35:35.914418403Z",
-  "chain_id": "nomic-testnet-3-1",
+  "chain_id": "moon-testnet-1001",
   "consensus_params": {
     "block": {
       "max_bytes": "22020096",
@@ -26,7 +26,7 @@
         "value": "Akt76L0rIGP4ssou5NJopl1xzTohPJuwJs+eXviWGmKE"
       },
       "power": "10",
-      "name": "Judd"
+      "name": "Peter"
     },
     {
       "address": "854C302C5393CEA307F5FF87800ADE02A2C32F04",
@@ -35,7 +35,16 @@
         "value": "AyINqK2BpngvYzwNm2e41ZooUw8sSYn46mlY3++SzI+c"
       },
       "power": "10",
-      "name": "Matt"
+      "name": "Tom"
+    },
+    {
+      "address": "3F260867CDC08DA7AA44AC6FDC10F147EC25D344",
+      "pub_key": {
+        "type": "tendermint/PubKeySecp256k1",
+        "value": "At0b/B3JmrBfIStZnxn9tmRbbbaX9exGb3399TNbV8WL"
+      },
+      "power": "10",
+      "name": "TokenV"
     }
   ],
   "app_hash": ""

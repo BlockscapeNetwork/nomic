@@ -14,7 +14,7 @@ lazy_static! {
 }
 
 pub fn start<P: AsRef<Path>>(nomic_home: P) -> Result<()> {
-    let client = Client::new("localhost:26657")?;
+    let client = Client::new("tcp://127.0.0.1:26657")?;
     let key_path = nomic_home
         .as_ref()
         .join("config")
@@ -25,15 +25,13 @@ pub fn start<P: AsRef<Path>>(nomic_home: P) -> Result<()> {
     let priv_key_str = priv_key_value
         .as_str()
         .expect("Invalid Tendermint private key");
-    let priv_key = SecretKey::from_slice(base64::decode(priv_key_str)?.as_slice())?;
 
+    let priv_key = SecretKey::from_slice(base64::decode(priv_key_str)?.as_slice())?;
     let pub_key = secp256k1::PublicKey::from_secret_key(&SECP, &priv_key);
     println!("signatory pub key: {:?}", &pub_key.serialize()[..]);
 
     loop {
-        if let Err(err) = try_sign(&client, &priv_key) {
-            warn!("signatory failed: \"{}\", will retry", err);
-        }
+        try_sign(&client, &priv_key)?;
         sleep(Duration::from_secs(60));
     }
 }

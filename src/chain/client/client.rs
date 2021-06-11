@@ -19,6 +19,7 @@ use std::ops::DerefMut;
 use std::str::FromStr;
 use orga::state::State as OrgaState;
 
+// use tendermint_rpc::{HttpClient as TendermintRpcClient, Client as RpcClient};
 use tendermint_rpc::{HttpClient as TendermintRpcClient, Client as RpcClient};
 use rocket::logger::error;
 
@@ -51,7 +52,7 @@ impl Write for RemoteStore {
     }
 }
 
-pub struct Client {
+pub struct Client{
     pub tendermint_rpc: TendermintRpcClient,
     store: RefCell<RemoteStore>,
 }
@@ -69,7 +70,10 @@ impl Client {
         })
     }
 
-    pub fn state<'a>(&'a self) -> OrgaResult<State<RefMut<'a, RemoteStore>>> {
+//    pub fn state<'a>(&'a self) -> OrgaResult<State<RefMut<'a, RemoteStore>>> {
+//        State::wrap_store(self.store.borrow_mut())
+//    }
+    pub fn state(&self) -> OrgaResult<State<RefMut<RemoteStore>>> {
         State::wrap_store(self.store.borrow_mut())
     }
 
