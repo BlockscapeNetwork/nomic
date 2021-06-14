@@ -143,7 +143,7 @@ pub fn main() {
             }
             info!("Starting signatory process");
             // TODO: VHX
-            nomic::signatory::start(nomic_home).unwrap();
+            // nomic::signatory::start(nomic_home).unwrap();
         }
         SubCommand::Worker(_) => {
             default_log_level("info");

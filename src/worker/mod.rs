@@ -5,20 +5,22 @@ use log::info;
 use rand::random;
 use sha2::{Digest, Sha256};
 use tendermint_rpc::Client;
-
+use tokio::runtime::Runtime;
 
 const MIN_WORK: u64 = 1 << 20;
 
 pub fn generate() {
-    let rpc = PegClient::new("localhost:26657").unwrap();
-    info!("Worker is not implemented correctly!")
-    // TODO: VHX
-    //let validators = rpc.tendermint_rpc;
-    //let pub_key_bytes = block_on(rpc.tendermint_rpc.status()).
-        // .expect("Unable to connect to tendermint RPC")
-        //.validator_info
-        //.pub_key
-        //.as_bytes()
+    let rpc = PegClient::new("tcp://127.0.0.1:26657").unwrap();
+    // info!("Worker is not implemented correctly!");
+    // Borrow issue fixed
+    let validators = rpc.tendermint_rpc.clone();
+    // We don't use async model
+    //let pub_key_bytes = block_on(rpc.tendermint_rpc.status())
+    let pub_key_bytes = Runtime::new().unwrap().block_on(rpc.tendermint_rpc.status())
+        .expect("Unable to connect to tendermint RPC")
+        .validator_info
+        .pub_key
+        .as_bytes()
         ;
     /*
     let mut nonce = random::<u64>();

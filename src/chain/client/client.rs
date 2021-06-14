@@ -112,9 +112,6 @@ impl Client {
 
     /// Get the Bitcoin headers currently used by the peg zone's on-chain SPV client.
     pub fn get_bitcoin_block_hashes(&self) -> Result<Vec<Hash>> {
-        bail!("get_bitcoin_block_hashes must be impkemented correctly");
-
-        /* TODO: VHX
         let state = &mut self.state()?.peg.headers;
         let mut header_cache = spv::headercache::HeaderCache::new(bitcoin_network, state);
         let trunk = header_cache.load_trunk();
@@ -123,7 +120,6 @@ impl Client {
             Some(trunk) => Ok(trunk.clone()),
             None => bail!("Unable to get header trunk"),
         }
-        */
     }
 
     /// Create and broadcast a transaction which reedems a golden nonce, granting voting power to
