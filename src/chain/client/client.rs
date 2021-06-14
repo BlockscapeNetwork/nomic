@@ -22,6 +22,7 @@ use orga::state::State as OrgaState;
 // use tendermint_rpc::{HttpClient as TendermintRpcClient, Client as RpcClient};
 use tendermint_rpc::{HttpClient as TendermintRpcClient, Client as RpcClient};
 use rocket::logger::error;
+use tokio::runtime::Runtime;
 
 pub struct RemoteStore {
     merk_store_client: MerkStoreClient<TendermintClient>,
@@ -107,7 +108,8 @@ impl Client {
 
         let rpc = &self.tendermint_rpc;
         let tx = tendermint::abci::Transaction::from(tx_bytes);
-        Ok(block_on(rpc.broadcast_tx_async(tx))?)
+        let mut rt = Runtime::new().unwrap();
+        Ok(rt.block_on(rpc.broadcast_tx_async(tx))?)
     }
 
     /// Get the Bitcoin headers currently used by the peg zone's on-chain SPV client.

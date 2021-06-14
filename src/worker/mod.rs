@@ -14,27 +14,34 @@ pub fn generate() {
     // info!("Worker is not implemented correctly!");
     // Borrow issue fixed
     let validators = rpc.tendermint_rpc.clone();
-    // We don't use async model
-    //let pub_key_bytes = block_on(rpc.tendermint_rpc.status())
-    let pub_key_bytes = Runtime::new().unwrap().block_on(rpc.tendermint_rpc.status())
+    let mut rt = Runtime::new().unwrap();
+    let status = rt.block_on(rpc.tendermint_rpc.status())
+        .expect("Unable to connect to tendermint RPC");
+    let pub_key_bytes = status.validator_info.pub_key.as_bytes();
+
+    /*
+    let pub_key_bytes = rt.block_on(rpc.tendermint_rpc.status())
         .expect("Unable to connect to tendermint RPC")
         .validator_info
         .pub_key
         .as_bytes()
         ;
-    /*
+*/
     let mut nonce = random::<u64>();
+
     loop {
-        let work_value = try_nonce(&pub_key_bytes, nonce);
+        let work_value = try_nonce(pub_key_bytes, nonce);
+
         if work_value >= MIN_WORK {
             info!("Generated {} voting power", work_value);
+
             rpc.submit_work_proof(&pub_key_bytes.to_vec(), nonce)
                 .expect("Failed to submit work proof");
         }
+
         nonce += 1;
     }
 
-    */
 }
 
 fn try_nonce(pub_key_bytes: &[u8], nonce: u64) -> u64 {
