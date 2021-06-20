@@ -24,6 +24,7 @@ use tendermint_rpc::{HttpClient as TendermintRpcClient, Client as RpcClient};
 use rocket::logger::error;
 use tokio::runtime::Runtime;
 
+
 pub struct RemoteStore {
     merk_store_client: MerkStoreClient<TendermintClient>,
 }
@@ -55,13 +56,14 @@ impl Write for RemoteStore {
 
 pub struct Client{
     pub tendermint_rpc: TendermintRpcClient,
+    // VHX Correct Store
     store: RefCell<RemoteStore>,
 }
 
 impl Client {
     pub fn new(tendermint_rpc_address: &str) -> Result<Self> {
         let address = tendermint::net::Address::from_str(tendermint_rpc_address)
-            .map_err(|_| failure::format_err!("Invalid Tendermint RPC address"))?;
+            .map_err(|_| failure::format_err!("Invalid Tendermint RPC - PegClient address: {:?}", &tendermint_rpc_address))?;
         let tendermint_rpc = TendermintRpcClient::new(address)?;
         let store = RemoteStore::new(tendermint_rpc_address);
 
@@ -108,15 +110,21 @@ impl Client {
 
         let rpc = &self.tendermint_rpc;
         let tx = tendermint::abci::Transaction::from(tx_bytes);
-        let mut rt = Runtime::new().unwrap();
+        let rt = Runtime::new().unwrap();
         Ok(rt.block_on(rpc.broadcast_tx_async(tx))?)
     }
 
     /// Get the Bitcoin headers currently used by the peg zone's on-chain SPV client.
-    pub fn get_bitcoin_block_hashes(&self) -> Result<Vec<Hash>> {
+    pub fn get_bitcoin_block_hashes(&mut self) -> Result<Vec<Hash>> {
         let state = &mut self.state()?.peg.headers;
         let mut header_cache = spv::headercache::HeaderCache::new(bitcoin_network, state);
+        //let state = &mut self.store;
+        //let mut header_cache = spv::headercache::HeaderCache::new(bitcoin_network, state);
+
+
         let trunk = header_cache.load_trunk();
+
+        println!("peg client header len: {}", trunk.unwrap().len());
 
         match trunk {
             Some(trunk) => Ok(trunk.clone()),

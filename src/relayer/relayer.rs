@@ -119,7 +119,7 @@ pub fn start() {
     info!(
         "Relayer process started. Watching Bitcoin network for new block headers and transactions."
     );
-
+    // TODO: Protocol error...
     std::thread::spawn(|| loop {
         if let Err(e) = header_step() {
             debug!("Header relaying error: {:?}", e);
@@ -128,10 +128,10 @@ pub fn start() {
     });
 
     std::thread::spawn(|| loop {
-        checkpoint_step().unwrap();
-        // if let Err(e) = checkpoint_step() {
-        //     error!("Checkpoint relaying error: {:?}", e);
-        // }
+        // checkpoint_step().unwrap();
+        if let Err(e) = checkpoint_step() {
+             debug!("Checkpoint relaying error: {:?}", e);
+        }
         std::thread::sleep(std::time::Duration::from_secs(60));
     });
 
@@ -143,7 +143,7 @@ pub fn start() {
 
 fn header_step() -> Result<()> {
     let btc_rpc = make_rpc_client().unwrap();
-    let peg_client = PegClient::new("localhost:26657")?;
+    let mut peg_client = PegClient::new("http://127.0.0.1:26657")?;
 
     // Fetch peg hashes
     let peg_hashes = peg_client.get_bitcoin_block_hashes()?;
@@ -161,7 +161,7 @@ fn header_step() -> Result<()> {
 
 fn checkpoint_step() -> Result<()> {
     let btc_rpc = make_rpc_client().unwrap();
-    let peg_client = PegClient::new("localhost:26657")?;
+    let peg_client = PegClient::new("tcp://127.0.0.1:26657")?;
 
     let btc_tx = match peg_client.get_finalized_checkpoint_tx()? {
         None => return Ok(()),

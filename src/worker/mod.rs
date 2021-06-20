@@ -14,7 +14,7 @@ pub fn generate() {
     // info!("Worker is not implemented correctly!");
     // Borrow issue fixed
     let validators = rpc.tendermint_rpc.clone();
-    let mut rt = Runtime::new().unwrap();
+    let rt = Runtime::new().unwrap();
     let status = rt.block_on(rpc.tendermint_rpc.status())
         .expect("Unable to connect to tendermint RPC");
     let pub_key_bytes = status.validator_info.pub_key.as_bytes();
